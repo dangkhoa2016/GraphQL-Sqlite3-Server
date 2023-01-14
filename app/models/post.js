@@ -1,26 +1,27 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
-  const User = sequelize.define('User', {
-    name: {
+  const Post = sequelize.define('Post', {
+    title: {
       type: DataTypes.STRING,
       validate: {
         notEmpty: true,
       }
     },
-    email: {
+    summary: {
       type: DataTypes.STRING,
       validate: {
         notEmpty: true,
-      },
-      unique: true
+      }
     },
-    phone: DataTypes.STRING,
-    points: DataTypes.INTEGER,
-    birthday: DataTypes.STRING,
+    content: {
+      type: DataTypes.TEXT,
+      validate: {
+        notEmpty: true,
+      }
+    },
+    userId: DataTypes.INTEGER,
+    photo: DataTypes.STRING,
     status: {
       type: DataTypes.STRING,
       validate: {
@@ -29,20 +30,21 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: 'active'
     }
   }, {});
-  
-  User.associate = function(models) {
-    // associations can be defined here
-    User.hasMany(models.Post, {
-      foreignKey: 'userId',
-      as: 'posts',
-      onDelete: 'CASCADE',
-    });
 
-    User.hasMany(models.Comment, {
-      foreignKey: 'userId',
+  Post.associate = function(models) {
+    // associations can be defined here
+    Post.hasMany(models.Comment, {
+      foreignKey: 'postId',
       as: 'comments',
       onDelete: 'CASCADE',
     });
+
+    Post.belongsTo(models.User, {
+      foreignKey: 'userId',
+      as: 'author',
+      onDelete: 'CASCADE',
+    })
   };
-  return User;
+
+  return Post;
 };

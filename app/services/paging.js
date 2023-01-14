@@ -20,5 +20,4 @@ class PagingService {
   }
 }
 
-
 module.exports = new PagingService();

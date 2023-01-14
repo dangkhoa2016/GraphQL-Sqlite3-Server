@@ -1,0 +1,15 @@
+// require('dotenv').config();
+const db = require('../app/models');
+const app = require('../app/index');
+const debug = require('debug')('graphql-sqlite3-server:bin/www');
+
+const SERVER_PORT = process.env.PORT || 8080;
+
+//drop and resync with { force: true }
+db.sequelize.sync().then(() => {
+  app.listen(SERVER_PORT, () =>
+    debug(`Server up and running on port ${SERVER_PORT}...`)
+  );
+}).catch((err) => {
+  debug('Error sync sequelize', err)
+});

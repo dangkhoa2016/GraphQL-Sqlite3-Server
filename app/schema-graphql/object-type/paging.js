@@ -1,13 +1,12 @@
 const graphql = require('graphql');
-const { Post, Comment, User } = require('../../models');
 const { UserType, PostType, CommentType } = require('./core');
 
 const {
   GraphQLObjectType,
-  GraphQLString,
+  // GraphQLString,
   GraphQLInt,
   GraphQLList,
-  GraphQLID
+  // GraphQLID
 } = graphql;
 
 const UserPagingType = new GraphQLObjectType({
@@ -40,4 +39,4 @@ const CommentPagingType = new GraphQLObjectType({
   })
 });
 
-module.exports = { UserPagingType, PostPagingType, CommentPagingType }
+module.exports = { UserPagingType, PostPagingType, CommentPagingType, }

@@ -1,5 +1,8 @@
 const graphql = require('graphql');
-const { PostType, UserType, CommentType, UserPagingType, PostPagingType, CommentPagingType } = require('./object-type');
+const debug = require('debug')('graphql-sqlite3-server:schema-graphql->query');
+
+const { PostType, UserType, CommentType, UserPagingType,
+  PostPagingType, CommentPagingType } = require('./object-type');
 const { Post, Comment, User } = require('../models');
 const { PagingService } = require('../services');
 
@@ -24,11 +27,11 @@ const RootQuery = new GraphQLObjectType({
       },
       resolve(parent, args) {
         return new Promise(async (resolve, reject) => {
-          var comment = await Comment.findByPk(args.id);
+          const comment = await Comment.findByPk(args.id);
           if (comment)
             resolve(comment);
           else
-            reject('Comment not found');
+            reject('Comment not found.');
         });
       },
     },
@@ -37,13 +40,11 @@ const RootQuery = new GraphQLObjectType({
       args: { id: { type: GraphQLID } },
       resolve(parent, args) {
         return new Promise(async (resolve, reject) => {
-          //test
-          // await timeout(3000);
-          var post = await Post.findByPk(args.id);
+          const post = await Post.findByPk(args.id);
           if (post)
             resolve(post);
           else
-            reject('Post not found');
+            reject('Post not found.');
         });
       },
     },
@@ -52,11 +53,11 @@ const RootQuery = new GraphQLObjectType({
       args: { id: { type: GraphQLID } },
       resolve(parent, args) {
         return new Promise(async (resolve, reject) => {
-          var user = await User.findByPk(args.id);
+          const user = await User.findByPk(args.id);
           if (user)
             resolve(user);
           else
-            reject('User not found');
+            reject('User not found.');
         });
       },
     },
@@ -77,41 +78,43 @@ const RootQuery = new GraphQLObjectType({
       },
       resolve(parent, args) {
         return new Promise(async (resolve, reject) => {
-          var { page_size, page_index, sort } = args;
+          const { page_size, page_index, sort } = args;
           if (sort)
             sort = sort.split('|');
           const { limit, offset } = PagingService.getPagination(page_index, page_size);
           try {
-            var data = await Comment.findAndCountAll({
-                where: {},
-                limit, offset,
-                order: sort ? [sort] : null
-              });
+            const data = await Comment.findAndCountAll({
+              where: {},
+              limit, offset,
+              order: sort ? [sort] : null
+            });
 
             const comments = PagingService.getPagingData(data, page_index, limit);
             resolve(comments);
           } catch (error) {
-            console.log('comments_paging_info', error)
-            reject({ error: "Error get list comments" })
+            debug('Error comments_paging_info', error);
+            reject({ error: 'Error get list comments.' });
           }
         });
       },
     },
+
     posts: {
       type: new GraphQLList(PostType),
       args: { page_index: { type: GraphQLInt } },
       resolve(parent, args) {
         return new Promise(async (resolve, reject) => {
           if (args.page_index) {
-            var limit = 5;
-            var page_index = args.page_index || 1;
+            const limit = 5;
+            const page_index = args.page_index || 1;
             if (page_index < 1)
               page_index = 1;
-            var offset = (page_index - 1) * limit;
+            const offset = (page_index - 1) * limit;
             resolve(await Post.findAll({ limit, offset, where: { status: 'active' } }));
+            return;
           }
-          else
-            resolve(await Post.findAll({}));
+          
+          resolve(await Post.findAll({}));
         });
       },
     },
@@ -123,26 +126,27 @@ const RootQuery = new GraphQLObjectType({
       },
       resolve(parent, args) {
         return new Promise(async (resolve, reject) => {
-          var { page_size, page_index, sort } = args;
+          const { page_size, page_index, sort } = args;
           if (sort)
             sort = sort.split('|');
           const { limit, offset } = PagingService.getPagination(page_index, page_size);
           try {
-            var data = await Post.findAndCountAll({
-                where: {},
-                limit, offset,
-                order: sort ? [sort] : null
-              });
+            const data = await Post.findAndCountAll({
+              where: {},
+              limit, offset,
+              order: sort ? [sort] : null
+            });
 
             const posts = PagingService.getPagingData(data, page_index, limit);
             resolve(posts);
           } catch (error) {
-            console.log('posts_paging_info', error)
-            reject({ error: "Error get list posts" })
+            debug('Error posts_paging_info', error);
+            reject({ error: 'Error get list posts.' });
           }
         });
       },
     },
+
     users: {
       type: new GraphQLList(UserType),
       resolve(parent, args) {
@@ -159,27 +163,27 @@ const RootQuery = new GraphQLObjectType({
       },
       resolve(parent, args) {
         return new Promise(async (resolve, reject) => {
-          var { page_size, page_index, sort } = args;
+          const { page_size, page_index, sort } = args;
           if (sort)
             sort = sort.split('|');
           const { limit, offset } = PagingService.getPagination(page_index, page_size);
           try {
-            var data = await User.findAndCountAll({
-                where: {},
-                limit, offset,
-                order: sort ? [sort] : null
-              });
+            const data = await User.findAndCountAll({
+              where: {},
+              limit, offset,
+              order: sort ? [sort] : null
+            });
 
             const users = PagingService.getPagingData(data, page_index, limit);
             resolve(users);
           } catch (error) {
-            console.log('users_paging_info', error)
-            reject({ error: "Error get list users" })
+            debug('Error users_paging_info', error);
+            reject({ error: 'Error get list users.' });
           }
         });
       },
-    }
-  })
+    },
+  }),
 });
 
 module.exports = RootQuery;

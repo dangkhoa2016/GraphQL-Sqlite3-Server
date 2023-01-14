@@ -1,4 +1,5 @@
 const graphql = require('graphql');
+const debug = require('debug')('graphql-sqlite3-server:schema-graphql->mutation-handler->user');
 
 const {
   UserType
@@ -9,12 +10,12 @@ const {
 } = require('../../models');
 
 const {
-  GraphQLObjectType,
+  // GraphQLObjectType,
   GraphQLString,
   GraphQLID,
   GraphQLInt,
   GraphQLNonNull,
-  GraphQLBoolean
+  // GraphQLBoolean
 } = graphql;
 
 module.exports = {
@@ -52,10 +53,9 @@ module.exports = {
           user = await user.save();
           resolve(user);
         } catch (ex) {
-          // console.log('ex', ex);
-          if (ex.name === 'SequelizeValidationError') {
+          debug('Error addUser', ex);
+          if (ex.name === 'SequelizeValidationError')
             reject(ex.errors[0].message);
-          }
           else
             reject(ex.message);
         }
@@ -96,15 +96,14 @@ module.exports = {
             birthday: args.birthday,
             points: args.points || 0,
           }, {
-              where: { id: args.id }
-            });
+            where: { id: args.id }
+          });
           var user = await User.findByPk(args.id);
           resolve(user);
         } catch (ex) {
-          // console.log('ex', ex);
-          if (ex.name === 'SequelizeValidationError') {
+          debug('Error updateUser', ex);
+          if (ex.name === 'SequelizeValidationError')
             reject(ex.errors[0].message);
-          }
           else
             reject(ex.message);
         }
@@ -122,23 +121,17 @@ module.exports = {
       return new Promise(async (resolve, reject) => {
         try {
           var user = await User.findByPk(args.id);
-          if (user) {
-            try {
-              await user.destroy();
-            } catch (ex) {
-
-            }
-          }
+          if (user)
+            await user.destroy();
           resolve(user);
         } catch (ex) {
-          // console.log('ex', ex);
-          if (ex.name === 'SequelizeValidationError') {
+          debug('Error deleteUser', ex);
+          if (ex.name === 'SequelizeValidationError')
             reject(ex.errors[0].message);
-          }
           else
             reject(ex.message);
         }
       });
     },
-  }
+  },
 }

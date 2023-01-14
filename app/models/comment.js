@@ -1,7 +1,5 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
   const Comment = sequelize.define('Comment', {
     postId: {
@@ -38,5 +36,6 @@ module.exports = (sequelize, DataTypes) => {
       as: 'post'
     });
   };
+
   return Comment;
 };

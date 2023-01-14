@@ -1,4 +1,5 @@
 const graphql = require('graphql');
+const debug = require('debug')('graphql-sqlite3-server:schema-graphql->mutation-handler->comment');
 
 const {
   CommentType
@@ -9,12 +10,12 @@ const {
 } = require('../../models');
 
 const {
-  GraphQLObjectType,
+  // GraphQLObjectType,
   GraphQLString,
   GraphQLID,
-  GraphQLInt,
+  // GraphQLInt,
   GraphQLNonNull,
-  GraphQLBoolean
+  // GraphQLBoolean
 } = graphql;
 
 module.exports = {
@@ -42,10 +43,9 @@ module.exports = {
           comment = await comment.save();
           resolve(comment);
         } catch (ex) {
-          // console.log('ex', ex);
-          if (ex.name === 'SequelizeValidationError') {
+          debug('Error addComment', ex);
+          if (ex.name === 'SequelizeValidationError')
             reject(ex.errors[0].message);
-          }
           else
             reject(ex.message);
         }
@@ -76,17 +76,14 @@ module.exports = {
             postId: args.postId,
             status: args.status,
           }, {
-              where: {
-                id: args.id
-              }
-            });
+            where: { id: args.id }
+          });
           var comment = await Comment.findByPk(args.id);
           resolve(comment);
         } catch (ex) {
-          // console.log('ex', ex);
-          if (ex.name === 'SequelizeValidationError') {
+          debug('Error updateComment', ex);
+          if (ex.name === 'SequelizeValidationError')
             reject(ex.errors[0].message);
-          }
           else
             reject(ex.message);
         }
@@ -102,23 +99,17 @@ module.exports = {
       return new Promise(async (resolve, reject) => {
         try {
           var comment = await Comment.findByPk(args.id);
-          if (comment) {
-            try {
-              await comment.destroy();
-            } catch (ex) {
-
-            }
-          }
+          if (comment)
+            await comment.destroy();
           resolve(comment);
         } catch (ex) {
-          // console.log('ex', ex);
-          if (ex.name === 'SequelizeValidationError') {
+          debug('Error deleteComment', ex);
+          if (ex.name === 'SequelizeValidationError')
             reject(ex.errors[0].message);
-          }
           else
             reject(ex.message);
         }
       });
     },
-  }
+  },
 }
